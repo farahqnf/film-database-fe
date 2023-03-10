@@ -3,8 +3,9 @@ import Sidebar from "../../components/sidebar"
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { BiEdit, BiTrashAlt } from 'react-icons/bi';
+import { ToastContainer, toast } from 'react-toastify';
 
-import Button from 'react-bootstrap/Button';
+
 import { Router, useRouter } from 'next/router';
 
 export default function Database(props) {
@@ -19,12 +20,15 @@ export default function Database(props) {
   const handleDelete = async (e, id) => {
     e.preventDefault();
     try {
-      await axios.get(`http://127.0.0.1:8000/database/delete/${id}`)
-        .then(res => {
+      await axios.get(`http://127.0.0.1:8000/api/database/delete/${id}`)
+        .then(() => {
           router.reload();
-          if (res.data.status === 'success') {
-            
-          }
+          toast.success('Film Dihapus', {
+            position: "top-center",
+            hideProgressBar: true,
+            autoClose: 2000,
+            theme: "colored"
+          })
         })
         .catch(err => {
           console.log(err, 'error')
@@ -76,7 +80,7 @@ export default function Database(props) {
                         <td>{data.trailer}</td> */}
                         <td>{data.overview}</td>
                         <td className="px-16 py-2 flex flex-justify-around gap-5">
-                          <button onClick={() =>{router.push(`/database/${data.id}`);}}>
+                          <button onClick={() => { router.push(`/database/${data.id}`); }}>
                             <BiEdit size={25}></BiEdit>
                           </button>
                         </td>
@@ -94,6 +98,8 @@ export default function Database(props) {
           </main>
         </div>
       </div>
+
+      <ToastContainer />
     </div>
 
   );

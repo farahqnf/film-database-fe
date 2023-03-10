@@ -3,6 +3,8 @@ import { useState, useReducer } from 'react';
 import axios from 'axios';
 import { Container, Form, Button } from 'react-bootstrap';
 import Sidebar from "../components/sidebar";
+import { Router, useRouter } from 'next/router';
+import { toast, ToastContainer } from "react-toastify";
 
 
 const formReducer = (state, event) => {
@@ -16,23 +18,30 @@ const formReducer = (state, event) => {
 export default function AddProduct() {
 
     const [formData, setFormData] = useReducer(formReducer, {})
+    const router = useRouter();
 
     const handleAdd = async (e) => {
         console.log(formData, "ini form data");
 
-        try {
-            await axios.post(`http://127.0.0.1:8000/api/database/store`, formData, { withCredentials: false })
-                .then(res => {
-                    // console.log(res.status, 'response');
-
-                    if (res.status === 201) {
-                        console.log("sukses");
-                    }
+        await axios.post(`http://127.0.0.1:8000/api/database/store`, formData, { withCredentials: false })
+            .then(res => {
+                toast.success('Film Ditambahkan', {
+                    position: "top-center",
+                    autoClose: 2000,
+                    theme: "colored"
                 })
-        } catch (error) {
-            console.log(error.message, 'GAGAL')
-        }
+                router.push(`/database`)
+            })
+            .catch(error => {
+                toast.error(error.response.data.message, {
+                    position: "top-center",
+                    hideProgressBar: true,
+                    autoClose: 2000,
+                    theme: "colored"
+                });
+            })
     }
+
 
     // const handleAdd = async () => {
     //     const rawResponse = await fetch('http://127.0.0.1:8000/api/database/store', {
@@ -102,9 +111,11 @@ export default function AddProduct() {
                                     Add
                                 </Button>
                             </div>
+
                         </Container>
                     </main>
                 </div>
+                <ToastContainer />
             </div>
         </div>
     )

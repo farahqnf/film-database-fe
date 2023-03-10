@@ -1,13 +1,13 @@
 import Navbar from "../../components/navbar"
 import Sidebar from "../../components/sidebar"
 import React from 'react';
-import { Router, useRouter } from 'next/router';
+import { useRouter } from 'next/router';
 import { Col, Container, Row } from 'react-bootstrap';
+import { toast, ToastContainer } from "react-toastify";
 
 import { Form, Button } from 'react-bootstrap';
-import { useState, useEffect, useReducer } from 'react';
+import { useReducer } from 'react';
 import axios from 'axios';
-import { useNavigate, useParams } from 'react-router-dom';
 
 const formReducer = (state, event) => {
     return {
@@ -24,27 +24,35 @@ export default function UpdateFIlm(props) {
 
     const router = useRouter();
 
-
     const handleUpdate = async (e, id) => {
         e.preventDefault();
-        console.log(formData, "ini form data update");
+        formData.title = `${formData.title ?? film.title}`
+        formData.year = `${formData.year ?? film.year}`
+        formData.category = `${formData.category ?? film.category}`
+        formData.poster = `${formData.poster ?? film.poster}`
+        formData.trailer = `${formData.trailer ?? film.trailer}`
+        formData.overview = `${formData.overview ?? film.overview}`
 
-        try {
-            await axios.put(`http://127.0.0.1:8000/api/database/${id}`, formData)
+        await axios.put(`http://127.0.0.1:8000/api/database/${id}`, formData)
             .then(res => {
                 console.log("sukses");
                 router.push('/database');
+                toast.success('Data Film Berhasil Diubah', {
+                    position: "top-center",
+                    hideProgressBar: true,
+                    autoClose: 2000,
+                    theme: "colored"
+                })
             })
-        } catch (error) {
-            console.log(error.response, 'catch update');
-        }
-        
-
+            .catch(error => {
+                toast.error(error.response.data.message, {
+                    position: "top-center",
+                    hideProgressBar: true,
+                    autoClose: 2000,
+                    theme: "colored"
+                });
+            })
     }
-
-    useEffect(() => {
-        // getFilm();
-    }, [])
 
     return (
         <div>
@@ -101,6 +109,7 @@ export default function UpdateFIlm(props) {
                         </Container>
                     </main>
                 </div>
+                <ToastContainer />
             </div>
         </div>
     )
@@ -126,7 +135,7 @@ export async function getStaticProps(contex) {
 
     const response = await axios.get(`http://127.0.0.1:8000/api/my-films/${id}`)
     const dataFetch = response.data;
-    
+
     return {
         props: {
             film: dataFetch.data,
