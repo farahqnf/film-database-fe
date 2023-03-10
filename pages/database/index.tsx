@@ -1,6 +1,5 @@
 import Navbar from "../../components/navbar"
 import Sidebar from "../../components/sidebar"
-import Table from 'react-bootstrap/Table';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { BiEdit, BiTrashAlt } from 'react-icons/bi';
@@ -14,25 +13,17 @@ export default function Database(props) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    console.log('ini di page');
+    console.log('ini di page dtabase');
   }, [])
-
-  const getProducts = async () => {
-
-    await axios.get('http://127.0.0.1:8000/api/my-films')
-      .then(res => {
-        setItems(res.data.product)
-      })
-  }
 
   const handleDelete = async (e, id) => {
     e.preventDefault();
     try {
       await axios.get(`http://127.0.0.1:8000/database/delete/${id}`)
         .then(res => {
+          router.reload();
           if (res.data.status === 'success') {
-            getProducts();
-            router.push("/database")
+            
           }
         })
         .catch(err => {
@@ -85,9 +76,7 @@ export default function Database(props) {
                         <td>{data.trailer}</td> */}
                         <td>{data.overview}</td>
                         <td className="px-16 py-2 flex flex-justify-around gap-5">
-                          <button
-                          // href="/database/update"
-                          >
+                          <button onClick={() =>{router.push(`/database/${data.id}`);}}>
                             <BiEdit size={25}></BiEdit>
                           </button>
                         </td>

@@ -1,4 +1,3 @@
-import Image from "next/image";
 import axios from 'axios';
 import Navbar from "../../components/navbar"
 import Sidebar from "../../components/sidebar";
@@ -51,12 +50,14 @@ export async function getStaticPaths() {
 export async function getStaticProps(contex) {
     const { id } = contex.params;
 
-    const response = await axios.get(`http://127.0.0.1:8000/my-films/${id}`)
+    const response = await axios.get(`http://127.0.0.1:8000/api/my-films/${id}`)
     const dataFetch = response.data;
+    // console.log(dataFetch, 'ini datafetch di details film');
+    
     
     return {
         props: {
-            film: dataFetch,
+            film: dataFetch.data,
         },
     };
 }

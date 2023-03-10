@@ -4,80 +4,46 @@ import React from 'react';
 import { Router, useRouter } from 'next/router';
 import { Col, Container, Row } from 'react-bootstrap';
 
-// import './styleAddProduct.css';
-import Image_2 from './Group_86.png';
-// import styleRegister from '../../../components/Register/register.module.css';
 import { Form, Button } from 'react-bootstrap';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useReducer } from 'react';
 import axios from 'axios';
 import { useNavigate, useParams } from 'react-router-dom';
 
+const formReducer = (state, event) => {
+    return {
+        ...state,
+        [event.target.name]: event.target.value
 
-export default function UpdateProduct() {
+    }
+}
 
-    const [items, setItems] = useState([]);
-    const [data, setData] = useState([]);
+export default function UpdateFIlm(props) {
+
+    const { film } = props;
+    const [formData, setFormData] = useReducer(formReducer, {})
+
     const router = useRouter();
 
-    const [title, setTitle] = useState('');
-    const [category, setCategory] = useState('');
-    const [year, setYear] = useState('');
-    const [trailer, setTrailer] = useState('');
-    const [poster, setPoster] = useState('');
-    const [overview, setOverview] = useState('');
 
-    const { id } = useParams();
-
-    const getFilm = async () => {
-        console.log(id, 'ini id');
-
-        await fetch(`http://127.0.0.1:8000/api/my-films/${id}`)
-            .then(res => {
-                console.log(res.json(), 'ini res');
-                // console.log(res.data.title);
-
-
-                // setData(res.data)
-                // setTitle(res.data.title)
-                // setYear(res.data.year)
-                // setCategory(res.data.category)
-                // setTrailer(res.data.trailer)
-                // setPoster(res.data.poster)
-                // setOverview(res.data.overview)
-            })
-    }
-
-
-
-    const handleUpdate = async (e) => {
+    const handleUpdate = async (e, id) => {
         e.preventDefault();
-
-        const status = 'available';
-        let formData = new FormData();
-
-        formData.append('title', title);
-        formData.append('category', category);
-        formData.append('year', year);
-        formData.append('trailer', trailer);
-        formData.append('poster', poster);
-        formData.append('overview', overview);
+        console.log(formData, "ini form data update");
 
         try {
-            console.log(title, category);
-            await axios.put(`http://127.0.0.1:8000/database/${id}`, formData)
-                .then(res => {
-                    getFilm()
-                    router.push('/database');
-                })
+            await axios.put(`http://127.0.0.1:8000/api/database/${id}`, formData)
+            .then(res => {
+                console.log("sukses");
+                router.push('/database');
+            })
         } catch (error) {
-            console.log(error.response.data.message, 'catch update');
+            console.log(error.response, 'catch update');
         }
-
+        
 
     }
 
     useEffect(() => {
-        getFilm();
+        // getFilm();
     }, [])
 
     return (
@@ -98,27 +64,27 @@ export default function UpdateProduct() {
                                             <Form.Label className='add-product-label'>
                                                 Title
                                             </Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setTitle(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.title} name="title" onChange={setFormData} />
                                         </Form.Group>
                                         <Form.Group className="mb-1" controlId="formBasicEmail">
                                             <Form.Label className='add-product-label'>Category</Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setCategory(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.category} name="category" onChange={setFormData} />
                                         </Form.Group>
                                         <Form.Group className="mb-1" controlId="formBasicEmail">
                                             <Form.Label className='add-product-label'>Year</Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setYear(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.year} name="year" onChange={setFormData} />
                                         </Form.Group>
                                         <Form.Group className="mb-1" controlId="formBasicEmail">
                                             <Form.Label className='add-product-label'>Trailer</Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setTrailer(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.trailer} name="trailer" onChange={setFormData} />
                                         </Form.Group>
                                         <Form.Group className="mb-1" controlId="formBasicEmail">
                                             <Form.Label className='add-product-label'>Poster</Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setPoster(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.poster} name="poster" onChange={setFormData} />
                                         </Form.Group>
                                         <Form.Group className="mb-1" controlId="formBasicEmail">
                                             <Form.Label className='add-product-label'>Overview</Form.Label>
-                                            <Form.Control type="text" onChange={(e) => setOverview(e.target.value)} />
+                                            <Form.Control type="text" defaultValue={film.overview} name="overview" onChange={setFormData} />
                                         </Form.Group>
                                     </Col>
                                 </Row>
@@ -126,7 +92,7 @@ export default function UpdateProduct() {
                             <Row>
                                 <Col>
                                     <div className='button-add-product mb-4'>
-                                        <Button onClick={handleUpdate} className='styleButton' variant="primary" type="submit">
+                                        <Button onClick={e => handleUpdate(e, film.id)} className='styleButton' variant="primary" type="submit">
                                             Update
                                         </Button>
                                     </div>
@@ -138,4 +104,32 @@ export default function UpdateProduct() {
             </div>
         </div>
     )
+}
+
+export async function getStaticPaths() {
+    const response = await fetch('http://127.0.0.1:8000/api/my-films')
+    const dataFetch = await response.json();
+    const paths = dataFetch.data.map((film) => ({
+        params: {
+            id: `${film.id}`
+        }
+    }));
+
+    return {
+        paths,
+        fallback: false,
+    };
+}
+
+export async function getStaticProps(contex) {
+    const { id } = contex.params;
+
+    const response = await axios.get(`http://127.0.0.1:8000/api/my-films/${id}`)
+    const dataFetch = response.data;
+    
+    return {
+        props: {
+            film: dataFetch.data,
+        },
+    };
 }

@@ -17,7 +17,7 @@ export default function AddProduct() {
 
     const [formData, setFormData] = useReducer(formReducer, {})
 
-    const handlePost = async (e) => {
+    const handleAdd = async (e) => {
         console.log(formData, "ini form data");
 
         try {
@@ -34,19 +34,19 @@ export default function AddProduct() {
         }
     }
 
-    const handleAdd = async () => {
-        const rawResponse = await fetch('http://127.0.0.1:8000/api/database/store', {
-            method: 'POST',
-            headers: {
-                'Accept': 'application/json',
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ a: 1, b: 'Textual content' })
-        });
-        const content = await rawResponse.json();
+    // const handleAdd = async () => {
+    //     const rawResponse = await fetch('http://127.0.0.1:8000/api/database/store', {
+    //         method: 'POST',
+    //         headers: {
+    //             'Accept': 'application/json',
+    //             'Content-Type': 'application/json'
+    //         },
+    //         body: JSON.stringify({ a: 1, b: 'Textual content' })
+    //     });
+    //     const content = await rawResponse.json();
 
-        console.log(content);
-    };
+    //     console.log(content);
+    // };
 
     return (
         <div>
@@ -98,7 +98,7 @@ export default function AddProduct() {
                                 </Form.Group>
                             </Form>
                             <div className='button-add-product mb-4'>
-                                <Button onClick={handlePost} className='styleButton' variant="primary" type="submit">
+                                <Button onClick={handleAdd} className='styleButton' variant="primary" type="submit">
                                     Add
                                 </Button>
                             </div>
